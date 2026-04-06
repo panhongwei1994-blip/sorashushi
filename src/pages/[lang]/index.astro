@@ -3,6 +3,7 @@ import BaseLayout from "@/components/layout/BaseLayout.astro";
 import HeroSection from "@/components/sections/HeroSection.astro";
 import BrandSection from "@/components/sections/BrandSection.astro";
 import FutureSection from "@/components/sections/FutureSection.astro";
+import ReviewsSection from "@/components/sections/ReviewsSection.astro";
 import FooterSection from "@/components/sections/FooterSection.astro";
 import OrderingApp from "@/components/commerce/OrderingApp.vue";
 import { locales } from "@/data/site";
@@ -19,5 +20,6 @@ const { lang } = Astro.params;
   <BrandSection lang={lang} />
   <OrderingApp client:load lang={lang} />
   <FutureSection lang={lang} />
+  <ReviewsSection lang={lang} />
   <FooterSection lang={lang} />
 </BaseLayout>

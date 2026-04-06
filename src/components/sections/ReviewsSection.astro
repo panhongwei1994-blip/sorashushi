@@ -1,0 +1,100 @@
+---
+import { getContent, normalizeLocale, reviews } from "@/data/site";
+
+const lang = normalizeLocale(Astro.props.lang);
+const content = getContent(lang);
+---
+
+<section class="container reviews-shell">
+  <div class="card reviews-panel">
+    <div class="reviews-head">
+      <div>
+        <p class="eyebrow">Google Reviews</p>
+        <h2>{content.reviewTitle}</h2>
+      </div>
+      <p class="section-copy">{content.reviewBody}</p>
+    </div>
+
+    <div class="reviews-grid">
+      {reviews.map((review) => (
+        <article class="review-card">
+          <img src={review.avatar} alt={review.name} loading="lazy" />
+          <div>
+            <div class="review-headline">
+              <strong>{review.name}</strong>
+              <span>★★★★★</span>
+            </div>
+            <p>{review.quote}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .reviews-shell {
+    padding: 28px 0;
+  }
+  .reviews-panel {
+    padding: 28px;
+    background:
+      radial-gradient(circle at top right, rgba(212,165,74,.11), transparent 28%),
+      linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)),
+      rgba(12,14,20,.92);
+  }
+  .reviews-head {
+    display: grid;
+    grid-template-columns: 1.05fr .95fr;
+    gap: 22px;
+    align-items: end;
+  }
+  .reviews-head h2 {
+    margin: 0;
+    font-size: clamp(2.1rem, 3.4vw, 3.6rem);
+    line-height: .98;
+    letter-spacing: -.04em;
+  }
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 24px;
+  }
+  .review-card {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 22px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+  }
+  .review-card img {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .review-headline {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+  }
+  .review-headline span {
+    color: #f4d59a;
+    letter-spacing: .2em;
+  }
+  .review-card p {
+    margin: 10px 0 0;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  @media (max-width: 900px) {
+    .reviews-head,
+    .reviews-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
