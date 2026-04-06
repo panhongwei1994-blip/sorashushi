@@ -1,0 +1,144 @@
+---
+import { getContent, normalizeLocale } from "@/data/site";
+
+const lang = normalizeLocale(Astro.props.lang);
+const content = getContent(lang);
+---
+
+<footer class="footer-shell">
+  <div class="container footer-top card">
+    <div class="footer-brand">
+      <p class="eyebrow">{content.brand}</p>
+      <h2>Sculpted for premium delivery.</h2>
+      <p>{content.footerStory}</p>
+      <div class="footer-cta-row">
+        <a class="pill-button" href="#order-menu">{content.orderNow}</a>
+        <a class="ghost-button" href="#menu">{content.viewMenu}</a>
+      </div>
+    </div>
+
+    <div class="footer-grid">
+      <section>
+        <p class="eyebrow">Visit</p>
+        <p>{content.locationAddress}</p>
+      </section>
+      <section>
+        <p class="eyebrow">Contact</p>
+        <p><a href={`tel:${content.phoneLabel}`}>{content.phoneLabel}</a></p>
+        <p><a href={`mailto:${content.email}`}>{content.email}</a></p>
+      </section>
+      <section>
+        <p class="eyebrow">Hours</p>
+        <p>{content.hoursWeek}</p>
+        <p>{content.hoursWeekend}</p>
+      </section>
+      <section>
+        <p class="eyebrow">Menu</p>
+        {content.footerLinks.map((item) => (
+          <p>{item}</p>
+        ))}
+      </section>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <p>© 2026 {content.brand}</p>
+    <div>
+      <a href="#menu">Menu</a>
+      <a href="#order-menu">Order</a>
+      <a href="/">Google Reviews</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer-shell {
+    padding: 0 0 42px;
+  }
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 36px;
+    border-radius: 36px;
+    background:
+      radial-gradient(circle at top left, rgba(212,165,74,.12), transparent 24%),
+      linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)),
+      rgba(10, 12, 18, .95);
+  }
+  .footer-brand h2 {
+    margin: 0;
+    font-size: clamp(2.4rem, 4vw, 4.5rem);
+    line-height: .95;
+    letter-spacing: -.05em;
+  }
+  .footer-brand p:last-of-type {
+    max-width: 44rem;
+    margin: 16px 0 0;
+    color: var(--muted);
+    line-height: 1.8;
+    font-size: 1.04rem;
+  }
+  .footer-cta-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 26px;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+  }
+  .footer-grid section {
+    padding: 18px;
+    border-radius: 24px;
+    background: rgba(255,255,255,.035);
+    border: 1px solid rgba(255,255,255,.08);
+  }
+  .footer-grid p {
+    margin: 0 0 10px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .footer-grid .eyebrow {
+    margin-bottom: 12px;
+  }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+    padding-top: 20px;
+    color: rgba(246,239,230,.54);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 13px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .footer-bottom p {
+    margin: 0;
+  }
+  .footer-bottom div {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  @media (max-width: 900px) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 560px) {
+    .footer-top {
+      padding: 24px;
+    }
+    .footer-grid {
+      grid-template-columns: 1fr;
+    }
+    .footer-bottom {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

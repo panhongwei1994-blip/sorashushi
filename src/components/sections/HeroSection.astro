@@ -1,0 +1,77 @@
+---
+import { getContent, normalizeLocale } from "@/data/site";
+
+const lang = normalizeLocale(Astro.props.lang);
+const content = getContent(lang);
+---
+
+<section class="hero-shell">
+  <img
+    src="/sushi/hero.png"
+    alt={content.heroTitle}
+    loading="eager"
+    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
+  />
+  <div class="hero-overlay" style="position:absolute;inset:0;background:
+    linear-gradient(90deg, rgba(7,8,12,.88), rgba(7,8,12,.4) 56%, rgba(7,8,12,.78)),
+    linear-gradient(180deg, rgba(7,8,12,.1), rgba(7,8,12,.72));"></div>
+
+  <div class="container hero-grid" style="position:relative;z-index:1;display:grid;grid-template-columns:1.2fr .8fr;gap:32px;align-items:end;min-height:100svh;padding:120px 0 56px;">
+    <div>
+      <p class="eyebrow">{content.brand}</p>
+      <h1 class="section-title" style="font-size:clamp(3.5rem,8vw,6.5rem);max-width:12ch;">
+        {content.heroTitle}
+      </h1>
+      <p class="section-copy" style="max-width:38rem;margin:24px 0 0;font-size:1.2rem;">
+        {content.heroBody}
+      </p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:34px;">
+        <a class="pill-button" href="#order-menu">{content.orderNow}</a>
+        <a class="ghost-button" href="#menu">{content.viewMenu}</a>
+      </div>
+    </div>
+
+    <div class="card hero-proof" style="padding:22px;display:grid;gap:14px;">
+      {content.trust.map((item, index) => (
+        <div class="proof-card" style="padding:16px 18px;border-radius:22px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);">
+          <p class="eyebrow" style="margin-bottom:8px;">{item}</p>
+          <p style="margin:0;color:var(--muted);line-height:1.7;">{content.trustBody[index]}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero-shell {
+    position: relative;
+    min-height: 100svh;
+    overflow: hidden;
+  }
+  .hero-shell:after {
+    content: "";
+    position: absolute;
+    inset: auto -10% -14% auto;
+    width: 36rem;
+    height: 36rem;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212,165,74,.18), transparent 62%);
+    filter: blur(30px);
+  }
+  .hero-proof {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)),
+      rgba(10,12,18,.58);
+  }
+  .proof-card {
+    backdrop-filter: blur(8px);
+  }
+  @media (max-width: 900px) {
+    .hero-grid {
+      grid-template-columns: 1fr !important;
+      align-items: center !important;
+      padding-top: 120px !important;
+      padding-bottom: 40px !important;
+    }
+  }
+</style>

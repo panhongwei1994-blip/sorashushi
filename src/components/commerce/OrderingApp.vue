@@ -1,0 +1,826 @@
+<template>
+  <section class="container ordering-shell">
+    <div class="menu-banner card">
+      <div>
+        <p class="eyebrow-inner">Curated Menu</p>
+        <h2>Choose your evening with the same clarity as a luxury tasting card.</h2>
+      </div>
+      <div class="menu-banner-meta">
+        <div>
+          <span>Fastest path</span>
+          <strong>2 taps to cart</strong>
+        </div>
+        <div>
+          <span>Average delivery</span>
+          <strong>30-45 min</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="category-row card">
+      <button
+        v-for="category in categories"
+        :key="category.id"
+        :class="['category-chip', { active: category.id === activeCategory }]"
+        type="button"
+        @click="activeCategory = category.id"
+      >
+        {{ category.label }}
+      </button>
+    </div>
+
+    <div id="order-menu" class="menu-grid">
+      <article v-for="product in filteredProducts" :key="product.id" class="product-card card">
+        <button class="image-button" type="button" @click="openProduct(product)">
+          <img :src="product.image" :alt="product.name" class="product-image" loading="lazy" />
+        </button>
+        <div class="product-copy">
+          <p class="product-kicker">{{ categories.find((item) => item.id === product.category)?.label }}</p>
+          <div class="tag-row">
+            <span v-for="tag in product.tags" :key="tag" class="tag-pill">{{ tag }}</span>
+          </div>
+          <div class="product-header">
+            <div>
+              <h3>{{ product.name }}</h3>
+              <p>{{ product.description }}</p>
+            </div>
+            <strong>{{ format(product.price) }}</strong>
+          </div>
+          <div class="product-actions">
+            <button class="primary-button" type="button" @click="quickAdd(product)">
+              {{ copy.addToCart }}
+            </button>
+            <button class="secondary-button" type="button" @click="openProduct(product)">
+              {{ copy.customize }}
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <button v-if="itemCount" class="mobile-cart" type="button" @click="cartOpen = true">
+      <span>{{ copy.viewCart }} ({{ itemCount }} {{ itemCount === 1 ? copy.item : copy.items }})</span>
+      <strong>{{ format(grandTotal) }}</strong>
+    </button>
+
+    <div v-if="productOpen" class="overlay" @click.self="closeProduct">
+      <div class="modal card">
+        <button class="close-button" type="button" @click="closeProduct">×</button>
+        <img :src="selected.image" :alt="selected.name" class="modal-image" />
+        <div class="modal-copy">
+          <div class="product-header">
+            <div>
+              <h3>{{ selected.name }}</h3>
+              <p>{{ selected.description }}</p>
+            </div>
+            <strong>{{ format(modalTotal) }}</strong>
+          </div>
+
+          <div class="field-group">
+            <label>{{ copy.quantity }}</label>
+            <div class="quantity-control">
+              <button type="button" @click="qty = Math.max(1, qty - 1)">-</button>
+              <span>{{ qty }}</span>
+              <button type="button" @click="qty += 1">+</button>
+            </div>
+          </div>
+
+          <div v-if="selected.addOns.length" class="field-group">
+            <label>{{ copy.addOns }}</label>
+            <div class="addon-grid">
+              <button
+                v-for="addOn in selected.addOns"
+                :key="addOn.id"
+                type="button"
+                :class="['addon-chip', { active: addOnIds.includes(addOn.id) }]"
+                @click="toggleAddon(addOn.id)"
+              >
+                <span>{{ addOn.label }}</span>
+                <span>{{ format(addOn.price) }}</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label>{{ copy.notes }}</label>
+            <textarea v-model="notes" :placeholder="copy.notesPlaceholder" rows="4"></textarea>
+          </div>
+        </div>
+
+        <div class="sticky-cta">
+          <div>
+            <small>{{ copy.total }}</small>
+            <strong>{{ format(modalTotal) }}</strong>
+          </div>
+          <button class="primary-button" type="button" @click="addConfiguredItem">{{ copy.addToCart }}</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="cartOpen" class="overlay cart-overlay" @click.self="cartOpen = false">
+      <aside class="cart-panel card">
+        <button class="close-button" type="button" @click="cartOpen = false">×</button>
+        <div class="cart-body">
+          <div>
+            <p class="eyebrow-inner">{{ copy.checkout }}</p>
+            <h3>{{ copy.cartTitle }}</h3>
+          </div>
+
+          <div v-if="!cart.length" class="empty-state">{{ copy.emptyCart }}</div>
+          <div v-else class="cart-items">
+            <article v-for="item in cart" :key="item.id" class="cart-item">
+              <img :src="item.image" :alt="item.name" />
+              <div>
+                <div class="cart-item-head">
+                  <strong>{{ item.name }}</strong>
+                  <strong>{{ format(item.total) }}</strong>
+                </div>
+                <p v-if="item.addOnLabels.length">{{ item.addOnLabels.join(" · ") }}</p>
+                <p v-if="item.notes">{{ item.notes }}</p>
+                <div class="cart-item-actions">
+                  <div class="quantity-control small">
+                    <button type="button" @click="changeQty(item.id, -1)">-</button>
+                    <span>{{ item.quantity }}</span>
+                    <button type="button" @click="changeQty(item.id, 1)">+</button>
+                  </div>
+                  <button class="text-button" type="button" @click="removeItem(item.id)">Remove</button>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="totals">
+            <div><span>{{ copy.subtotal }}</span><strong>{{ format(subtotal) }}</strong></div>
+            <div><span>{{ copy.deliveryFee }}</span><strong>{{ format(deliveryFee) }}</strong></div>
+            <div><span>{{ copy.total }}</span><strong>{{ format(grandTotal) }}</strong></div>
+          </div>
+
+          <div class="checkout-box" v-if="cart.length">
+            <div class="step-row">
+              <span :class="{ active: step === 1 }">1. {{ copy.step1 }}</span>
+              <span :class="{ active: step === 2 }">2. {{ copy.step2 }}</span>
+              <span :class="{ active: step === 3 }">3. {{ copy.step3 }}</span>
+            </div>
+
+            <div v-if="step === 1" class="form-grid">
+              <label><span>{{ copy.name }}</span><input v-model="checkout.name" type="text" /></label>
+              <label><span>{{ copy.phone }}</span><input v-model="checkout.phone" type="tel" /></label>
+              <label><span>{{ copy.address }}</span><input v-model="checkout.address" type="text" /></label>
+            </div>
+
+            <div v-if="step === 2" class="form-grid">
+              <label><span>{{ copy.deliveryMethod }}</span>
+                <select v-model="checkout.fulfillment">
+                  <option value="delivery">{{ copy.delivery }}</option>
+                  <option value="pickup">{{ copy.pickup }}</option>
+                </select>
+              </label>
+              <label><span>{{ copy.time }}</span>
+                <select v-model="checkout.time">
+                  <option :value="copy.asap">{{ copy.asap }}</option>
+                  <option :value="copy.tonight">{{ copy.tonight }}</option>
+                  <option :value="copy.later">{{ copy.later }}</option>
+                </select>
+              </label>
+            </div>
+
+            <div v-if="step === 3" class="form-grid">
+              <label><span>{{ copy.paymentMethod }}</span>
+                <select v-model="checkout.payment">
+                  <option value="stripe">{{ copy.stripe }}</option>
+                  <option value="cash">{{ copy.cash }}</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="checkout-actions">
+              <button v-if="step > 1" class="secondary-button" type="button" @click="step -= 1">Back</button>
+              <button v-if="step < 3" class="primary-button" type="button" @click="step += 1">{{ copy.checkout }}</button>
+              <button v-else class="primary-button" type="button" @click="placeOrder">{{ copy.placeOrder }}</button>
+            </div>
+
+            <p v-if="orderPlaced" class="success-note">Order placed. This is a clean demo flow ready for Stripe integration.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+</template>
+
+<script setup lang="ts">
+import { computed, reactive, ref, watch } from "vue";
+import { formatPrice, getContent, getLocalizedProducts, normalizeLocale } from "@/data/site";
+
+const props = defineProps<{ lang?: string }>();
+const lang = normalizeLocale(props.lang);
+const copy = getContent(lang);
+const products = getLocalizedProducts(lang);
+const categories = [
+  { id: "signature", label: copy.categories.signature },
+  { id: "sashimi", label: copy.categories.sashimi },
+  { id: "nigiri", label: copy.categories.nigiri },
+  { id: "boxes", label: copy.categories.boxes },
+  { id: "sides", label: copy.categories.sides },
+  { id: "drinks", label: copy.categories.drinks },
+];
+
+const activeCategory = ref<typeof categories[number]["id"]>("signature");
+const cartOpen = ref(false);
+const productOpen = ref(false);
+const selected = ref(products[0]);
+const qty = ref(1);
+const addOnIds = ref<string[]>([]);
+const notes = ref("");
+const step = ref(1);
+const orderPlaced = ref(false);
+const cart = ref<Array<{
+  id: string;
+  productId: string;
+  name: string;
+  image: string;
+  quantity: number;
+  addOnLabels: string[];
+  addOnTotal: number;
+  notes: string;
+  unitPrice: number;
+  total: number;
+}>>([]);
+
+const checkout = reactive({
+  name: "",
+  phone: "",
+  address: "",
+  fulfillment: "delivery",
+  time: copy.asap,
+  payment: "stripe",
+});
+
+const filteredProducts = computed(() => products.filter((p) => p.category === activeCategory.value));
+const subtotal = computed(() => cart.value.reduce((sum, item) => sum + item.total, 0));
+const deliveryFee = computed(() => (cart.value.length ? (checkout.fulfillment === "pickup" ? 0 : 4.9) : 0));
+const grandTotal = computed(() => subtotal.value + deliveryFee.value);
+const itemCount = computed(() => cart.value.reduce((sum, item) => sum + item.quantity, 0));
+const modalTotal = computed(() => {
+  const addOnTotal = selected.value.addOns
+    .filter((addOn) => addOnIds.value.includes(addOn.id))
+    .reduce((sum, item) => sum + item.price, 0);
+  return (selected.value.price + addOnTotal) * qty.value;
+});
+
+const format = (value: number) => formatPrice(value, lang);
+
+function openProduct(product: (typeof products)[number]) {
+  selected.value = product;
+  qty.value = 1;
+  addOnIds.value = [];
+  notes.value = "";
+  productOpen.value = true;
+}
+
+function closeProduct() {
+  productOpen.value = false;
+}
+
+function toggleAddon(id: string) {
+  addOnIds.value = addOnIds.value.includes(id)
+    ? addOnIds.value.filter((item) => item !== id)
+    : [...addOnIds.value, id];
+}
+
+function pushCartItem(product: (typeof products)[number], quantity: number, selectedAddOnIds: string[], itemNotes: string) {
+  const addOns = product.addOns.filter((item) => selectedAddOnIds.includes(item.id));
+  const addOnTotal = addOns.reduce((sum, item) => sum + item.price, 0);
+  const unitPrice = product.price + addOnTotal;
+  cart.value = [
+    ...cart.value,
+    {
+      id: `${product.id}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      productId: product.id,
+      name: product.name,
+      image: product.image,
+      quantity,
+      addOnLabels: addOns.map((item) => item.label),
+      addOnTotal,
+      notes: itemNotes,
+      unitPrice,
+      total: unitPrice * quantity,
+    },
+  ];
+}
+
+function quickAdd(product: (typeof products)[number]) {
+  pushCartItem(product, 1, [], "");
+  cartOpen.value = true;
+}
+
+function addConfiguredItem() {
+  pushCartItem(selected.value, qty.value, addOnIds.value, notes.value.trim());
+  productOpen.value = false;
+  cartOpen.value = true;
+}
+
+function changeQty(id: string, delta: number) {
+  cart.value = cart.value.flatMap((item) => {
+    if (item.id !== id) return [item];
+    const nextQty = item.quantity + delta;
+    if (nextQty <= 0) return [];
+    return [{ ...item, quantity: nextQty, total: item.unitPrice * nextQty }];
+  });
+}
+
+function removeItem(id: string) {
+  cart.value = cart.value.filter((item) => item.id !== id);
+}
+
+function placeOrder() {
+  orderPlaced.value = true;
+}
+
+watch([cartOpen, productOpen], ([cartState, productState]) => {
+  document.documentElement.style.overflow = cartState || productState ? "hidden" : "";
+});
+</script>
+
+<style scoped>
+.ordering-shell {
+  padding: 24px 0 32px;
+}
+.menu-banner {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 18px;
+  align-items: end;
+  padding: 26px 28px;
+  margin-bottom: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(212,165,74,.12), transparent 28%),
+    linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)),
+    rgba(12, 14, 20, .96);
+}
+.menu-banner h2 {
+  margin: 8px 0 0;
+  font-size: clamp(1.8rem, 3vw, 2.9rem);
+  line-height: .98;
+  letter-spacing: -.04em;
+}
+.menu-banner-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.menu-banner-meta div {
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+}
+.menu-banner-meta span,
+.product-kicker {
+  display: block;
+  margin: 0 0 8px;
+  color: rgba(244,213,154,.82);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+.menu-banner-meta strong {
+  font-size: 1.05rem;
+}
+.category-row {
+  position: sticky;
+  top: 16px;
+  z-index: 10;
+  display: flex;
+  gap: 10px;
+  overflow: auto;
+  padding: 12px;
+  border-radius: 999px;
+}
+.category-chip {
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04);
+  color: rgba(246,239,230,.72);
+  white-space: nowrap;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+.category-chip.active {
+  background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+  color: #160f08;
+}
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin-top: 22px;
+}
+.product-card {
+  overflow: hidden;
+}
+.image-button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  overflow: hidden;
+}
+.product-image {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+.product-card:hover .product-image {
+  transform: scale(1.04);
+}
+.product-copy {
+  padding: 20px;
+}
+.product-kicker {
+  margin-bottom: 10px;
+}
+.tag-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.tag-pill {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(212,165,74,.14);
+  color: var(--gold-soft);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.product-header {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.product-header h3 {
+  margin: 0;
+  font-size: 1.65rem;
+}
+.product-header p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.product-header strong {
+  white-space: nowrap;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+}
+.product-actions,
+.checkout-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 18px;
+}
+.primary-button,
+.secondary-button,
+.addon-chip,
+.text-button,
+.quantity-control button,
+input,
+select,
+textarea {
+  transition: all .16s ease;
+}
+.primary-button,
+.secondary-button {
+  min-height: 52px;
+  border-radius: 16px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.primary-button {
+  border: 0;
+  background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+  color: #160f08;
+}
+.secondary-button {
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+}
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(5,6,10,.74);
+  backdrop-filter: blur(14px);
+}
+.cart-overlay {
+  place-items: stretch end;
+  padding: 0;
+}
+.modal {
+  position: relative;
+  width: min(860px, 100%);
+  padding: 18px;
+}
+.modal-image {
+  width: 100%;
+  height: 360px;
+  object-fit: cover;
+  border-radius: 24px;
+}
+.modal-copy {
+  display: grid;
+  gap: 20px;
+  padding: 20px 4px 96px;
+}
+.sticky-cta {
+  position: absolute;
+  inset: auto 18px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(7,8,12,.94);
+  border: 1px solid rgba(255,255,255,.08);
+}
+.sticky-cta small {
+  display: block;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.close-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.08);
+  color: var(--text);
+}
+.field-group {
+  display: grid;
+  gap: 10px;
+}
+.field-group label,
+.form-grid label span,
+.eyebrow-inner {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(244,213,154,.82);
+}
+.quantity-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04);
+}
+.quantity-control.small {
+  transform: scale(.92);
+  transform-origin: left center;
+}
+.quantity-control button {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(255,255,255,.07);
+  color: var(--text);
+}
+.addon-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.addon-chip {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+}
+.addon-chip.active {
+  background: rgba(212,165,74,.14);
+  border-color: rgba(212,165,74,.4);
+}
+textarea,
+input,
+select {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+}
+textarea {
+  min-height: 120px;
+  padding-top: 14px;
+  resize: vertical;
+}
+.cart-panel {
+  position: relative;
+  width: min(480px, 100%);
+  height: 100vh;
+  padding: 18px;
+  border-radius: 28px 0 0 28px;
+}
+.cart-body {
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  gap: 18px;
+  height: 100%;
+}
+.cart-body h3 {
+  margin: 0;
+  font-size: 2rem;
+}
+.empty-state {
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px dashed rgba(255,255,255,.14);
+  color: var(--muted);
+}
+.cart-items {
+  overflow: auto;
+  display: grid;
+  gap: 14px;
+}
+.cart-item {
+  display: grid;
+  grid-template-columns: 82px 1fr;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+}
+.cart-item img {
+  width: 82px;
+  height: 82px;
+  object-fit: cover;
+  border-radius: 18px;
+}
+.cart-item-head,
+.totals > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.cart-item p,
+.totals {
+  color: var(--muted);
+  line-height: 1.6;
+}
+.cart-item-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-top: 12px;
+}
+.text-button {
+  border: 0;
+  background: transparent;
+  color: var(--danger);
+}
+.totals {
+  display: grid;
+  gap: 8px;
+  padding: 16px 0 0;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.totals > div:last-child {
+  color: var(--text);
+  font-weight: 700;
+}
+.checkout-box {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+}
+.step-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.step-row span {
+  padding: 12px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.08);
+  color: var(--muted);
+  text-align: center;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.step-row span.active {
+  color: var(--text);
+  background: rgba(212,165,74,.14);
+  border-color: rgba(212,165,74,.4);
+}
+.form-grid {
+  display: grid;
+  gap: 12px;
+}
+.form-grid label {
+  display: grid;
+  gap: 8px;
+}
+.success-note {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(63,185,80,.12);
+  color: #ace2b2;
+}
+.mobile-cart {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 20;
+  min-height: 62px;
+  display: none;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 0;
+  background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+  color: #160f08;
+  box-shadow: 0 18px 40px rgba(212,165,74,.34);
+}
+
+@media (max-width: 1080px) {
+  .menu-banner,
+  .menu-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 760px) {
+  .menu-banner,
+  .menu-banner-meta,
+  .menu-grid,
+  .addon-grid,
+  .product-actions,
+  .checkout-actions {
+    grid-template-columns: 1fr;
+  }
+  .product-image {
+    height: 260px;
+  }
+  .modal-image {
+    height: 240px;
+  }
+  .cart-panel {
+    width: 100%;
+    border-radius: 0;
+  }
+  .mobile-cart {
+    display: flex;
+  }
+}
+</style>

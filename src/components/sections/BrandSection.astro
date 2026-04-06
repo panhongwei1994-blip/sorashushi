@@ -1,0 +1,76 @@
+---
+import { getContent, normalizeLocale, reviews } from "@/data/site";
+
+const lang = normalizeLocale(Astro.props.lang);
+const content = getContent(lang);
+---
+
+<section id="menu" class="container menu-intro">
+  <div class="menu-intro-grid" style="display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:start;">
+    <div>
+      <p class="eyebrow">{content.menuEyebrow}</p>
+      <h2 class="section-title">{content.menuTitle}</h2>
+      <p class="section-copy" style="max-width:42rem;margin-top:20px;">
+        {content.menuBody}
+      </p>
+      <div class="menu-signals">
+        <div class="signal-chip">Omakase-level presentation</div>
+        <div class="signal-chip">Fast order path</div>
+        <div class="signal-chip">High-trust checkout</div>
+      </div>
+    </div>
+    <div class="card review-panel" style="padding:24px;">
+      <p class="eyebrow">Google Reviews</p>
+      <h3 style="margin:0;font-size:2rem;">{content.reviewTitle}</h3>
+      <p class="section-copy" style="margin-top:14px;">{content.reviewBody}</p>
+      <div style="display:grid;gap:14px;margin-top:20px;">
+        {reviews.map((review) => (
+          <article style="display:grid;grid-template-columns:auto 1fr;gap:14px;padding:14px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);">
+            <img src={review.avatar} alt={review.name} loading="lazy" style="width:56px;height:56px;border-radius:50%;object-fit:cover;" />
+            <div>
+              <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;">
+                <strong>{review.name}</strong>
+                <span style="color:#f4d59a;letter-spacing:.2em;">★★★★★</span>
+              </div>
+              <p style="margin:10px 0 0;color:var(--muted);line-height:1.6;">{review.quote}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .menu-intro {
+    padding: 88px 0 24px;
+  }
+  .menu-signals {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+  }
+  .signal-chip {
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    color: rgba(246,239,230,.72);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 12px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .review-panel {
+    background:
+      radial-gradient(circle at top right, rgba(212,165,74,.11), transparent 28%),
+      linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)),
+      rgba(12,14,20,.92);
+  }
+  @media (max-width: 900px) {
+    .menu-intro-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>

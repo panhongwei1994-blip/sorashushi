@@ -1,0 +1,32 @@
+---
+import { getContent, normalizeLocale } from "@/data/site";
+
+const lang = normalizeLocale(Astro.props.lang);
+const content = getContent(lang);
+---
+
+<section class="container" style="padding:28px 0 104px;">
+  <div class="card" style="padding:28px;">
+    <p class="eyebrow">{content.futureTitle}</p>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
+      {content.future.map((item) => (
+        <div style="padding:18px;border-radius:22px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--muted);line-height:1.7;">
+          {item}
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  @media (max-width: 900px) {
+    section div[style*="grid-template-columns:repeat(4,1fr)"] {
+      grid-template-columns: 1fr 1fr !important;
+    }
+  }
+  @media (max-width: 560px) {
+    section div[style*="grid-template-columns:repeat(4,1fr)"] {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>

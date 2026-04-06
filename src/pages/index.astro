@@ -1,0 +1,16 @@
+---
+import BaseLayout from "@/components/layout/BaseLayout.astro";
+import HeroSection from "@/components/sections/HeroSection.astro";
+import BrandSection from "@/components/sections/BrandSection.astro";
+import FutureSection from "@/components/sections/FutureSection.astro";
+import FooterSection from "@/components/sections/FooterSection.astro";
+import OrderingApp from "@/components/commerce/OrderingApp.vue";
+---
+
+<BaseLayout lang="en">
+  <HeroSection lang="en" />
+  <BrandSection lang="en" />
+  <OrderingApp client:load lang="en" />
+  <FutureSection lang="en" />
+  <FooterSection lang="en" />
+</BaseLayout>
