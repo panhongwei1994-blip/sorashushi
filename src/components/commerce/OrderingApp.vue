@@ -1,22 +1,5 @@
 <template>
   <section class="container ordering-shell">
-    <div class="menu-banner card">
-      <div>
-        <p class="eyebrow-inner">Curated Menu</p>
-        <h2>Choose your evening with the same clarity as a luxury tasting card.</h2>
-      </div>
-      <div class="menu-banner-meta">
-        <div>
-          <span>Fastest path</span>
-          <strong>2 taps to cart</strong>
-        </div>
-        <div>
-          <span>Average delivery</span>
-          <strong>30-45 min</strong>
-        </div>
-      </div>
-    </div>
-
     <div class="category-row card">
       <button
         v-for="category in categories"
@@ -104,6 +87,12 @@
           <div class="field-group">
             <label>{{ copy.notes }}</label>
             <textarea v-model="notes" :placeholder="copy.notesPlaceholder" rows="4"></textarea>
+          </div>
+
+          <div class="modal-action-row">
+            <button class="primary-button modal-add-button" type="button" @click="addConfiguredItem">
+              {{ copy.addToCart }}
+            </button>
           </div>
         </div>
 
@@ -212,6 +201,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import { formatPrice, getContent, getLocalizedProducts, normalizeLocale } from "@/data/site";
+
+const CART_STORAGE_KEY = "sora-sushi-cart";
 
 const props = defineProps<{ lang?: string }>();
 const lang = normalizeLocale(props.lang);
@@ -343,6 +334,15 @@ function handleOpenCart() {
 }
 
 onMounted(() => {
+  if (typeof window === "undefined") return;
+  const savedCart = window.localStorage.getItem(CART_STORAGE_KEY);
+  if (savedCart) {
+    try {
+      cart.value = JSON.parse(savedCart);
+    } catch {
+      window.localStorage.removeItem(CART_STORAGE_KEY);
+    }
+  }
   window.addEventListener("open-cart", handleOpenCart);
 });
 
@@ -353,45 +353,24 @@ onBeforeUnmount(() => {
 watch([cartOpen, productOpen], ([cartState, productState]) => {
   document.documentElement.style.overflow = cartState || productState ? "hidden" : "";
 });
+
+watch(
+  cart,
+  (value) => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(value));
+  },
+  { deep: true },
+);
 </script>
 
 <style scoped>
 .ordering-shell {
   padding: 24px 0 32px;
 }
-.menu-banner {
-  display: grid;
-  grid-template-columns: 1.1fr .9fr;
-  gap: 18px;
-  align-items: end;
-  padding: 26px 28px;
-  margin-bottom: 18px;
-  background:
-    radial-gradient(circle at top left, rgba(212,165,74,.12), transparent 28%),
-    linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)),
-    rgba(12, 14, 20, .96);
-}
-.menu-banner h2 {
-  margin: 8px 0 0;
-  font-size: clamp(1.8rem, 3vw, 2.9rem);
-  line-height: .98;
-  letter-spacing: -.04em;
-}
-.menu-banner-meta {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.menu-banner-meta div {
-  padding: 16px;
-  border-radius: 20px;
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.08);
-}
-.menu-banner-meta span,
-.product-kicker {
+.product-kicker,
+.eyebrow-inner {
   display: block;
-  margin: 0 0 8px;
   color: rgba(244,213,154,.82);
   font-family: ui-sans-serif, system-ui, sans-serif;
   font-size: 11px;
@@ -399,8 +378,8 @@ watch([cartOpen, productOpen], ([cartState, productState]) => {
   letter-spacing: .2em;
   text-transform: uppercase;
 }
-.menu-banner-meta strong {
-  font-size: 1.05rem;
+.product-kicker {
+  margin: 0 0 8px;
 }
 .category-row {
   position: sticky;
@@ -411,6 +390,7 @@ watch([cartOpen, productOpen], ([cartState, productState]) => {
   overflow: auto;
   padding: 12px;
   border-radius: 999px;
+  margin-bottom: 18px;
 }
 .category-chip {
   min-height: 48px;
@@ -553,7 +533,9 @@ textarea {
 .modal {
   position: relative;
   width: min(860px, 100%);
+  max-height: min(92vh, 900px);
   padding: 18px;
+  overflow: auto;
 }
 .modal-image {
   width: 100%;
@@ -564,11 +546,12 @@ textarea {
 .modal-copy {
   display: grid;
   gap: 20px;
-  padding: 20px 4px 96px;
+  padding: 20px 4px 120px;
 }
 .sticky-cta {
-  position: absolute;
-  inset: auto 18px 18px;
+  position: sticky;
+  bottom: 0;
+  margin-top: -84px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -577,6 +560,7 @@ textarea {
   border-radius: 18px;
   background: rgba(7,8,12,.94);
   border: 1px solid rgba(255,255,255,.08);
+  z-index: 3;
 }
 .sticky-cta small {
   display: block;
@@ -603,14 +587,19 @@ textarea {
   gap: 10px;
 }
 .field-group label,
-.form-grid label span,
-.eyebrow-inner {
+.form-grid label span {
   font-family: ui-sans-serif, system-ui, sans-serif;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: .18em;
   text-transform: uppercase;
   color: rgba(244,213,154,.82);
+}
+.modal-action-row {
+  display: none;
+}
+.modal-add-button {
+  width: 100%;
 }
 .quantity-control {
   display: inline-flex;
@@ -815,14 +804,11 @@ textarea {
 }
 
 @media (max-width: 1080px) {
-  .menu-banner,
   .menu-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 @media (max-width: 760px) {
-  .menu-banner,
-  .menu-banner-meta,
   .menu-grid,
   .addon-grid,
   .product-actions,
@@ -834,6 +820,16 @@ textarea {
   }
   .modal-image {
     height: 240px;
+  }
+  .modal-copy {
+    padding-bottom: 20px;
+  }
+  .sticky-cta {
+    position: static;
+    margin-top: 0;
+  }
+  .modal-action-row {
+    display: block;
   }
   .cart-panel {
     width: 100%;
