@@ -241,6 +241,7 @@ const lang = normalizeLocale(props.lang);
 const copy = getContent(lang);
 const products = getLocalizedProducts(lang);
 const categories = [
+  { id: "all", label: copy.categories.all },
   { id: "signature", label: copy.categories.signature },
   { id: "sashimi", label: copy.categories.sashimi },
   { id: "nigiri", label: copy.categories.nigiri },
@@ -249,7 +250,7 @@ const categories = [
   { id: "drinks", label: copy.categories.drinks },
 ];
 
-const activeCategory = ref<typeof categories[number]["id"]>("signature");
+const activeCategory = ref<typeof categories[number]["id"]>("all");
 const cartOpen = ref(false);
 const productOpen = ref(false);
 const selected = ref(products[0]);
@@ -280,7 +281,11 @@ const checkout = reactive({
   payment: "stripe",
 });
 
-const filteredProducts = computed(() => products.filter((p) => p.category === activeCategory.value));
+const filteredProducts = computed(() =>
+  activeCategory.value === "all"
+    ? products
+    : products.filter((p) => p.category === activeCategory.value),
+);
 const subtotal = computed(() => cart.value.reduce((sum, item) => sum + item.total, 0));
 const deliveryFee = computed(() => (cart.value.length ? (checkout.fulfillment === "pickup" ? 0 : 4.9) : 0));
 const grandTotal = computed(() => subtotal.value + deliveryFee.value);

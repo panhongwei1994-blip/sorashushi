@@ -44,6 +44,7 @@ export const siteContent = {
       "Low-friction checkout",
     ],
     categories: {
+      all: "All",
       signature: "Signature Rolls",
       sashimi: "Sashimi",
       nigiri: "Nigiri",
@@ -139,6 +140,7 @@ export const siteContent = {
       "Reibungsloser Checkout",
     ],
     categories: {
+      all: "Alle",
       signature: "Signature Rolls",
       sashimi: "Sashimi",
       nigiri: "Nigiri",
@@ -234,6 +236,7 @@ export const siteContent = {
       "Checkout ágil",
     ],
     categories: {
+      all: "Todo",
       signature: "Rolls Signature",
       sashimi: "Sashimi",
       nigiri: "Nigiri",
@@ -329,6 +332,7 @@ export const siteContent = {
       "Checkout fluide",
     ],
     categories: {
+      all: "Tout",
       signature: "Rolls Signature",
       sashimi: "Sashimi",
       nigiri: "Nigiri",
@@ -424,6 +428,7 @@ export const siteContent = {
       "Snelle checkout",
     ],
     categories: {
+      all: "Alles",
       signature: "Signature Rolls",
       sashimi: "Sashimi",
       nigiri: "Nigiri",
