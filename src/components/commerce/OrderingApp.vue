@@ -184,7 +184,6 @@
                   <span>{{ copy.paymentMethod }}</span>
                   <div class="choice-row">
                     <button
-                      v-if="checkout.fulfillment === 'delivery'"
                       type="button"
                       :class="['choice-chip', { active: checkout.payment === 'stripe' }]"
                       @click="checkout.payment = 'stripe'"
@@ -207,12 +206,22 @@
                 <button v-if="step < 2" class="primary-button" type="button" :disabled="!canContinueContact" @click="step += 1">{{ copy.checkout }}</button>
                 <button v-else class="primary-button" type="button" :disabled="!canPlaceOrder" @click="placeOrder">{{ copy.placeOrder }}</button>
               </div>
-
-              <p v-if="orderPlaced" class="success-note">{{ orderPlacedMessage }}</p>
             </div>
           </div>
         </div>
       </aside>
+    </div>
+
+    <div v-if="orderPlaced" class="overlay" @click.self="closeSuccessModal">
+      <div class="success-modal card">
+        <button class="close-button" type="button" @click="closeSuccessModal">×</button>
+        <p class="eyebrow-inner">{{ copy.checkout }}</p>
+        <h3>{{ successTitle }}</h3>
+        <p class="success-modal-copy">{{ orderPlacedMessage }}</p>
+        <button class="primary-button success-modal-button" type="button" @click="closeSuccessModal">
+          Continue
+        </button>
+      </div>
     </div>
   </section>
 </template>
@@ -275,12 +284,17 @@ const canContinueContact = computed(() => Boolean(checkout.name.trim() && checko
 const canPlaceOrder = computed(() => {
   const hasContact = canContinueContact.value;
   if (!hasContact) return false;
-  if (checkout.fulfillment === "pickup") return checkout.payment === "cash";
+  if (checkout.fulfillment === "pickup") return Boolean(checkout.payment);
   return Boolean(checkout.address.trim() && checkout.payment);
 });
+const successTitle = computed(() =>
+  checkout.fulfillment === "pickup" ? "Pickup Confirmed" : "Order Confirmed",
+);
 const orderPlacedMessage = computed(() =>
   checkout.fulfillment === "pickup"
-    ? "Pickup order confirmed. Please pay in cash when you collect your order."
+    ? checkout.payment === "cash"
+      ? "Pickup order confirmed. Please pay in cash when you collect your order."
+      : "Pickup order confirmed. A Stripe payment step is ready to connect next."
     : checkout.payment === "cash"
       ? "Delivery order confirmed. Please pay in cash on delivery."
       : "Order placed. Your payment is ready for Stripe integration.",
@@ -360,10 +374,17 @@ function removeItem(id: string) {
 function placeOrder() {
   if (!canPlaceOrder.value) return;
   orderPlaced.value = true;
+  cart.value = [];
+  cartOpen.value = false;
+  step.value = 1;
 }
 
 function handleOpenCart() {
   cartOpen.value = true;
+}
+
+function closeSuccessModal() {
+  orderPlaced.value = false;
 }
 
 onMounted(() => {
@@ -401,9 +422,6 @@ watch(
   (value) => {
     if (value === "pickup") {
       checkout.address = "";
-      checkout.payment = "cash";
-    } else if (checkout.payment === "cash") {
-      checkout.payment = "stripe";
     }
   },
 );
@@ -635,6 +653,24 @@ textarea {
   background: rgba(255,255,255,.08);
   color: var(--text);
 }
+.success-modal {
+  position: relative;
+  width: min(460px, 100%);
+  padding: 28px;
+}
+.success-modal h3 {
+  margin: 10px 0 0;
+  font-size: 2rem;
+}
+.success-modal-copy {
+  margin: 16px 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.success-modal-button {
+  width: 100%;
+  margin-top: 22px;
+}
 .field-group {
   display: grid;
   gap: 10px;
@@ -863,13 +899,6 @@ textarea {
   background: rgba(212,165,74,.14);
   border-color: rgba(212,165,74,.4);
   color: var(--gold-soft);
-}
-.success-note {
-  margin: 0;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: rgba(63,185,80,.12);
-  color: #ace2b2;
 }
 .mobile-cart {
   position: fixed;
