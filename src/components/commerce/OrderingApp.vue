@@ -758,14 +758,17 @@ textarea {
 }
 .addon-chip {
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
   min-height: 52px;
-  padding: 0 14px;
+  padding: 12px 14px;
   border-radius: 16px;
   border: 1px solid rgba(255,255,255,.1);
   background: rgba(255,255,255,.04);
   color: var(--text);
+  text-align: center;
 }
 .addon-chip.active {
   background: rgba(212,165,74,.14);
