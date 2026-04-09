@@ -435,12 +435,18 @@ async function beginStripeCheckout() {
 
     const data = await response.json();
     if (!response.ok || !data.url) {
-      throw new Error(data.error || "Unable to start Stripe checkout");
+      throw new Error(
+        data.error ||
+          "Unable to start Stripe checkout. Check your Cloudflare Pages Stripe environment variables.",
+      );
     }
 
     window.location.href = data.url;
   } catch (error) {
-    paymentError.value = error instanceof Error ? error.message : "Unable to start Stripe checkout";
+    paymentError.value =
+      error instanceof Error
+        ? error.message
+        : "Unable to start Stripe checkout. Check your Cloudflare Pages Stripe environment variables.";
   } finally {
     isSubmitting.value = false;
   }

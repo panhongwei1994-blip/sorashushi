@@ -28,7 +28,10 @@ const stripeKey = import.meta.env.STRIPE_SECRET_KEY;
 
 export const POST: APIRoute = async ({ request }) => {
   if (!stripeKey) {
-    return new Response(JSON.stringify({ error: "Missing Stripe secret key" }), {
+    return new Response(JSON.stringify({
+      error:
+        "Stripe key missing. Add STRIPE_SECRET_KEY in your Cloudflare Pages Variables and Secrets, then redeploy.",
+    }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
