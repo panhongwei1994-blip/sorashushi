@@ -738,6 +738,7 @@ textarea {
   max-height: min(96vh, 1040px);
   overflow: auto;
   padding: 28px 28px 24px;
+  box-sizing: border-box;
 }
 .embedded-head {
   display: flex;
@@ -1140,10 +1141,12 @@ textarea {
     margin-top: 0;
   }
   .embedded-modal {
-    width: calc(100vw - 8px);
+    width: 100%;
+    max-width: calc(100vw - 16px);
     max-height: 94vh;
     padding: 18px 14px 14px;
     border-radius: 24px;
+    margin: 0 auto;
   }
   .embedded-head {
     flex-direction: column;
