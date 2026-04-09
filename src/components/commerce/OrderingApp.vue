@@ -1121,7 +1121,7 @@ textarea {
 }
 @media (max-width: 760px) {
   .embedded-overlay {
-    place-items: end stretch;
+    display: block;
     padding: 0;
   }
   .menu-grid,
@@ -1145,13 +1145,17 @@ textarea {
     margin-top: 0;
   }
   .embedded-modal {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
     max-width: 100%;
     max-height: 96vh;
     min-height: 88vh;
     padding: 18px 12px 12px;
     border-radius: 22px 22px 0 0;
-    margin: auto 0 0;
+    margin: 0;
   }
   .embedded-head {
     flex-direction: column;
