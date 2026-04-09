@@ -1141,12 +1141,13 @@ textarea {
     margin-top: 0;
   }
   .embedded-modal {
-    width: 100%;
-    max-width: calc(100vw - 16px);
-    max-height: 94vh;
-    padding: 18px 14px 14px;
-    border-radius: 24px;
-    margin: 0 auto;
+    width: 100vw;
+    max-width: 100vw;
+    max-height: 96vh;
+    min-height: 88vh;
+    padding: 18px 12px 12px;
+    border-radius: 22px 22px 0 0;
+    margin: auto 0 0;
   }
   .embedded-head {
     flex-direction: column;
@@ -1157,7 +1158,7 @@ textarea {
     font-size: 1.35rem;
   }
   #embedded-checkout {
-    min-height: 72vh;
+    min-height: 78vh;
   }
   .modal-action-row {
     display: block;
