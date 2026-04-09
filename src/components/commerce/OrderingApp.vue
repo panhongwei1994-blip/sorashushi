@@ -517,13 +517,13 @@ watch(
   gap: 10px;
   overflow: auto;
   padding: 12px;
-  border-radius: 999px;
+  border-radius: 28px;
   margin-bottom: 18px;
 }
 .category-chip {
   min-height: 48px;
   padding: 0 18px;
-  border-radius: 999px;
+  border-radius: 16px;
   border: 1px solid rgba(255,255,255,.1);
   background: rgba(255,255,255,.04);
   color: rgba(246,239,230,.72);
