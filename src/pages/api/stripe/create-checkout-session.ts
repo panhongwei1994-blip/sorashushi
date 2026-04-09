@@ -49,7 +49,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const stripe = new Stripe(stripeKey);
   const origin = siteUrl || new URL(request.url).origin;
-  const langPath = payload.lang && payload.lang !== "en" ? `/${payload.lang}` : "";
   const orderCode = `${payload.checkout.fulfillment === "pickup" ? "PK" : "DL"}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
   const lineItems = payload.cart.map((item) => ({
@@ -81,10 +80,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   const sessionParams = {
-    ui_mode: "embedded",
+    ui_mode: "embedded_page",
     mode: "payment",
     line_items: lineItems,
-    return_url: `${origin}${langPath}/checkout/success?order=${orderCode}&fulfillment=${payload.checkout.fulfillment}&payment=stripe&session_id={CHECKOUT_SESSION_ID}`,
     customer_email: undefined,
     redirect_on_completion: "never",
     billing_address_collection: payload.checkout.fulfillment === "delivery" ? "required" : "auto",
