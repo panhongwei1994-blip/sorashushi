@@ -734,10 +734,10 @@ textarea {
 }
 .embedded-modal {
   position: relative;
-  width: min(920px, 100%);
-  max-height: min(92vh, 960px);
+  width: min(1080px, calc(100vw - 24px));
+  max-height: min(96vh, 1040px);
   overflow: auto;
-  padding: 28px;
+  padding: 28px 28px 24px;
 }
 .embedded-head {
   display: flex;
@@ -769,7 +769,7 @@ textarea {
   color: var(--muted);
 }
 #embedded-checkout {
-  min-height: 640px;
+  min-height: 760px;
 }
 .modal {
   position: relative;
@@ -1140,17 +1140,21 @@ textarea {
     margin-top: 0;
   }
   .embedded-modal {
-    width: 100%;
-    padding: 22px 18px;
+    width: calc(100vw - 8px);
+    max-height: 94vh;
+    padding: 18px 14px 14px;
+    border-radius: 24px;
   }
   .embedded-head {
     flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
   }
   .embedded-head h3 {
-    font-size: 1.5rem;
+    font-size: 1.35rem;
   }
   #embedded-checkout {
-    min-height: 520px;
+    min-height: 72vh;
   }
   .modal-action-row {
     display: block;
