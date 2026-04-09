@@ -8,7 +8,10 @@ const content = getContent(lang);
 <footer class="footer-shell">
   <div class="container footer-top card">
     <div class="footer-brand">
-      <p class="eyebrow">{content.brand}</p>
+      <div class="brand-row">
+        <img src="/sushi/logo.webp" alt="Sora Sushi Logo" class="brand-logo" />
+        <p class="eyebrow">{content.brand}</p>
+      </div>
       <h2>Sculpted for premium delivery.</h2>
       <p>{content.footerStory}</p>
       <div class="footer-cta-row">
@@ -65,6 +68,19 @@ const content = getContent(lang);
       radial-gradient(circle at top left, rgba(212,165,74,.12), transparent 24%),
       linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)),
       rgba(10, 12, 18, .95);
+  }
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+  }
+  .brand-logo {
+    height: 36px;
+    width: 36px;
+    object-fit: cover;
+    border-radius: 8px;
   }
   .footer-brand h2 {
     margin: 0;

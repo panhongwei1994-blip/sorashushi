@@ -1,0 +1,56 @@
+---
+import BaseLayout from "@/components/layout/BaseLayout.astro";
+
+const orderCode = Astro.url.searchParams.get("order") || "Pending";
+const fulfillment = Astro.url.searchParams.get("fulfillment") || "order";
+---
+
+<BaseLayout lang="en">
+  <main class="container checkout-state">
+    <div class="card state-card">
+      <p class="eyebrow">Stripe Demo</p>
+      <h1 class="section-title">Payment Received</h1>
+      <p class="section-copy">Your {fulfillment} order is confirmed. Show this code if the team asks for order verification.</p>
+      <div class="code-box">
+        <small>Order Code</small>
+        <strong>{orderCode}</strong>
+      </div>
+      <a href="/" class="pill-button">Back to Menu</a>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .checkout-state {
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    padding: 120px 0 48px;
+  }
+  .state-card {
+    width: min(560px, 100%);
+    padding: 32px;
+    display: grid;
+    gap: 18px;
+  }
+  .code-box {
+    padding: 16px 18px;
+    border-radius: 20px;
+    border: 1px solid rgba(212,165,74,.22);
+    background: rgba(212,165,74,.08);
+  }
+  .code-box small {
+    display: block;
+    margin-bottom: 8px;
+    color: rgba(244,213,154,.82);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: .18em;
+    font-size: 11px;
+  }
+  .code-box strong {
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: .18em;
+    font-size: 1.2rem;
+  }
+</style>

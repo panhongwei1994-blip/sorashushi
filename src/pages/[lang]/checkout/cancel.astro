@@ -1,0 +1,37 @@
+---
+import BaseLayout from "@/components/layout/BaseLayout.astro";
+import { locales, normalizeLocale } from "@/data/site";
+
+export function getStaticPaths() {
+  return locales.filter((lang) => lang !== "en").map((lang) => ({ params: { lang } }));
+}
+
+const lang = normalizeLocale(Astro.params.lang);
+const home = `/${lang}`;
+---
+
+<BaseLayout lang={lang}>
+  <main class="container checkout-state">
+    <div class="card state-card">
+      <p class="eyebrow">Stripe Demo</p>
+      <h1 class="section-title">Checkout Canceled</h1>
+      <p class="section-copy">No payment was taken. You can return to the menu and try again whenever you are ready.</p>
+      <a href={home} class="pill-button">Back to Menu</a>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .checkout-state {
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    padding: 120px 0 48px;
+  }
+  .state-card {
+    width: min(560px, 100%);
+    padding: 32px;
+    display: grid;
+    gap: 18px;
+  }
+</style>

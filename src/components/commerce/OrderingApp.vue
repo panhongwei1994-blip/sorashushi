@@ -204,8 +204,11 @@
               <div class="checkout-actions">
                 <button v-if="step > 1" class="secondary-button" type="button" @click="step -= 1">Back</button>
                 <button v-if="step < 2" class="primary-button" type="button" :disabled="!canContinueContact" @click="step += 1">{{ copy.checkout }}</button>
-                <button v-else class="primary-button" type="button" :disabled="!canPlaceOrder" @click="placeOrder">{{ copy.placeOrder }}</button>
+                <button v-else class="primary-button" type="button" :disabled="!canPlaceOrder || isSubmitting" @click="placeOrder">
+                  {{ isSubmitting ? "Redirecting..." : copy.placeOrder }}
+                </button>
               </div>
+              <p v-if="paymentError" class="error-note">{{ paymentError }}</p>
             </div>
           </div>
         </div>
@@ -260,6 +263,8 @@ const notes = ref("");
 const step = ref(1);
 const orderPlaced = ref(false);
 const orderCode = ref("");
+const paymentError = ref("");
+const isSubmitting = ref(false);
 const cart = ref<Array<{
   id: string;
   productId: string;
@@ -383,6 +388,13 @@ function removeItem(id: string) {
 
 function placeOrder() {
   if (!canPlaceOrder.value) return;
+
+  paymentError.value = "";
+  if (checkout.payment === "stripe") {
+    void beginStripeCheckout();
+    return;
+  }
+
   orderCode.value = generateOrderCode();
   orderPlaced.value = true;
   cart.value = [];
@@ -402,6 +414,36 @@ function generateOrderCode() {
   const prefix = checkout.fulfillment === "pickup" ? "PK" : "DL";
   const random = Math.random().toString(36).slice(2, 8).toUpperCase();
   return `${prefix}-${random}`;
+}
+
+async function beginStripeCheckout() {
+  isSubmitting.value = true;
+
+  try {
+    const response = await fetch("/api/stripe/create-checkout-session", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        lang,
+        cart: cart.value,
+        checkout,
+        deliveryFee: deliveryFee.value,
+      }),
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.url) {
+      throw new Error(data.error || "Unable to start Stripe checkout");
+    }
+
+    window.location.href = data.url;
+  } catch (error) {
+    paymentError.value = error instanceof Error ? error.message : "Unable to start Stripe checkout";
+  } finally {
+    isSubmitting.value = false;
+  }
 }
 
 onMounted(() => {
@@ -706,6 +748,13 @@ textarea {
   font-family: ui-sans-serif, system-ui, sans-serif;
   font-size: 1.2rem;
   letter-spacing: .18em;
+}
+.error-note {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255,124,124,.12);
+  color: #ffc5c5;
 }
 .success-modal-button {
   width: 100%;
