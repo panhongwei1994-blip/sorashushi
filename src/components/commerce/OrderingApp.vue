@@ -154,6 +154,7 @@
                     :class="['choice-chip', { active: checkout.fulfillment === 'delivery' }]"
                     @click="checkout.fulfillment = 'delivery'"
                   >
+                    <span class="choice-icon" aria-hidden="true">🚚</span>
                     {{ copy.delivery }}
                   </button>
                   <button
@@ -161,6 +162,7 @@
                     :class="['choice-chip', { active: checkout.fulfillment === 'pickup' }]"
                     @click="checkout.fulfillment = 'pickup'"
                   >
+                    <span class="choice-icon" aria-hidden="true">🥡</span>
                     {{ copy.pickup }}
                   </button>
                 </div>
@@ -174,6 +176,7 @@
                     :class="['choice-chip', { active: checkout.payment === 'stripe' }]"
                     @click="checkout.payment = 'stripe'"
                   >
+                    <span class="choice-icon" aria-hidden="true">💳</span>
                     {{ copy.stripe }}
                   </button>
                   <button
@@ -181,6 +184,7 @@
                     :class="['choice-chip', { active: checkout.payment === 'cash' }]"
                     @click="checkout.payment = 'cash'"
                   >
+                    <span class="choice-icon" aria-hidden="true">💵</span>
                     {{ copy.cash }}
                   </button>
                 </div>
@@ -1067,6 +1071,10 @@ textarea {
   gap: 10px;
 }
 .choice-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   min-height: 52px;
   border-radius: 16px;
   border: 1px solid rgba(255,255,255,.1);
@@ -1077,6 +1085,10 @@ textarea {
   font-weight: 700;
   letter-spacing: .12em;
   text-transform: uppercase;
+}
+.choice-icon {
+  font-size: 1rem;
+  line-height: 1;
 }
 .choice-chip.active {
   background: rgba(212,165,74,.14);
