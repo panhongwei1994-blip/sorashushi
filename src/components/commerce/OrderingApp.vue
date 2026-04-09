@@ -147,16 +147,21 @@
 
             <div class="checkout-box" v-if="cart.length">
               <div class="step-row">
-                <span :class="{ active: step === 1 }">1. {{ copy.step1 }}</span>
-                <span :class="{ active: step === 2 }">2. {{ copy.step2Short }}</span>
+                <template v-if="checkout.payment === 'cash'">
+                  <span :class="{ active: step === 1 }">1. {{ copy.step1 }}</span>
+                  <span :class="{ active: step === 2 }">2. {{ copy.step2Short }}</span>
+                </template>
+                <template v-else>
+                  <span class="active full-width">1. {{ copy.step2Short }}</span>
+                </template>
               </div>
 
-              <div v-if="step === 1" class="form-grid">
+              <div v-if="checkout.payment === 'cash' && step === 1" class="form-grid">
                 <label><span>{{ copy.name }}</span><input v-model="checkout.name" type="text" /></label>
                 <label><span>{{ copy.phone }}</span><input v-model="checkout.phone" type="tel" /></label>
               </div>
 
-              <div v-if="step === 2" class="form-grid">
+              <div v-if="checkout.payment === 'stripe' || step === 2" class="form-grid">
                 <div class="choice-group">
                   <span>{{ copy.deliveryMethod }}</span>
                   <div class="choice-row">
@@ -176,7 +181,7 @@
                     </button>
                   </div>
                 </div>
-                <label v-if="checkout.fulfillment === 'delivery'">
+                <label v-if="checkout.payment === 'cash' && checkout.fulfillment === 'delivery'">
                   <span>{{ copy.address }}</span>
                   <input v-model="checkout.address" type="text" />
                 </label>
@@ -199,13 +204,18 @@
                     </button>
                   </div>
                 </div>
+                <p v-if="checkout.payment === 'stripe'" class="helper-note">
+                  Stripe will collect your name, phone, and
+                  {{ checkout.fulfillment === "delivery" ? " delivery address" : " pickup details" }}
+                  in the payment step.
+                </p>
               </div>
 
               <div class="checkout-actions">
-                <button v-if="step > 1" class="secondary-button" type="button" @click="step -= 1">Back</button>
-                <button v-if="step < 2" class="primary-button" type="button" :disabled="!canContinueContact" @click="step += 1">{{ copy.checkout }}</button>
+                <button v-if="checkout.payment === 'cash' && step > 1" class="secondary-button" type="button" @click="step -= 1">Back</button>
+                <button v-if="checkout.payment === 'cash' && step < 2" class="primary-button" type="button" :disabled="!canContinueContact" @click="step += 1">{{ copy.checkout }}</button>
                 <button v-else class="primary-button" type="button" :disabled="!canPlaceOrder || isSubmitting" @click="placeOrder">
-                  {{ isSubmitting ? "Redirecting..." : copy.placeOrder }}
+                  {{ isSubmitting ? "Loading payment..." : copy.placeOrder }}
                 </button>
               </div>
               <p v-if="paymentError" class="error-note">{{ paymentError }}</p>
@@ -317,8 +327,10 @@ const subtotal = computed(() => cart.value.reduce((sum, item) => sum + item.tota
 const deliveryFee = computed(() => (cart.value.length ? (checkout.fulfillment === "pickup" ? 0 : 4.9) : 0));
 const grandTotal = computed(() => subtotal.value + deliveryFee.value);
 const itemCount = computed(() => cart.value.reduce((sum, item) => sum + item.quantity, 0));
+const isStripeFlow = computed(() => checkout.payment === "stripe");
 const canContinueContact = computed(() => Boolean(checkout.name.trim() && checkout.phone.trim()));
 const canPlaceOrder = computed(() => {
+  if (isStripeFlow.value) return true;
   const hasContact = canContinueContact.value;
   if (!hasContact) return false;
   if (checkout.fulfillment === "pickup") return Boolean(checkout.payment);
@@ -551,6 +563,18 @@ watch(
       checkout.address = "";
     }
   },
+);
+
+watch(
+  () => checkout.payment,
+  (value) => {
+    if (value === "stripe") {
+      step.value = 2;
+    } else if (step.value > 2) {
+      step.value = 2;
+    }
+  },
+  { immediate: true },
 );
 </script>
 
@@ -1058,6 +1082,9 @@ textarea {
   letter-spacing: .14em;
   text-transform: uppercase;
 }
+.step-row span.full-width {
+  grid-column: 1 / -1;
+}
 .step-row span.active {
   color: var(--text);
   background: rgba(212,165,74,.14);
@@ -1104,6 +1131,15 @@ textarea {
   background: rgba(212,165,74,.14);
   border-color: rgba(212,165,74,.4);
   color: var(--gold-soft);
+}
+.helper-note {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  color: var(--muted);
+  line-height: 1.6;
 }
 .mobile-cart {
   position: fixed;
