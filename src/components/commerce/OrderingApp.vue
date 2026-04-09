@@ -230,11 +230,29 @@
         </button>
       </div>
     </div>
+
+    <div v-if="embeddedCheckoutOpen" class="overlay embedded-overlay" @click.self="closeEmbeddedCheckout">
+      <div class="embedded-modal card">
+        <button class="close-button" type="button" @click="closeEmbeddedCheckout">×</button>
+        <p class="eyebrow-inner">{{ copy.checkout }}</p>
+        <div class="embedded-head">
+          <div>
+            <h3>Secure Payment</h3>
+            <p>Complete your Stripe payment without leaving the page.</p>
+          </div>
+          <strong>{{ format(grandTotal) }}</strong>
+        </div>
+        <div v-if="embeddedCheckoutLoading" class="embedded-state">Loading Stripe checkout…</div>
+        <div v-else-if="paymentError" class="embedded-state error-note">{{ paymentError }}</div>
+        <div id="embedded-checkout" :class="{ hidden: embeddedCheckoutLoading || Boolean(paymentError) }"></div>
+      </div>
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
+import { loadStripe } from "@stripe/stripe-js";
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import { formatPrice, getContent, getLocalizedProducts, normalizeLocale } from "@/data/site";
 
 const CART_STORAGE_KEY = "sora-sushi-cart";
@@ -265,6 +283,8 @@ const orderPlaced = ref(false);
 const orderCode = ref("");
 const paymentError = ref("");
 const isSubmitting = ref(false);
+const embeddedCheckoutOpen = ref(false);
+const embeddedCheckoutLoading = ref(false);
 const cart = ref<Array<{
   id: string;
   productId: string;
@@ -285,6 +305,8 @@ const checkout = reactive({
   fulfillment: "delivery",
   payment: "stripe",
 });
+
+let embeddedCheckoutInstance: { destroy?: () => void } | null = null;
 
 const filteredProducts = computed(() =>
   activeCategory.value === "all"
@@ -309,10 +331,10 @@ const orderPlacedMessage = computed(() =>
   checkout.fulfillment === "pickup"
     ? checkout.payment === "cash"
       ? "Pickup order confirmed. Please pay in cash when you collect your order."
-      : "Pickup order confirmed. A Stripe payment step is ready to connect next."
+      : "Pickup order confirmed. Your Stripe payment has been received."
     : checkout.payment === "cash"
       ? "Delivery order confirmed. Please pay in cash on delivery."
-      : "Order placed. Your payment is ready for Stripe integration.",
+      : "Delivery order confirmed. Your Stripe payment has been received.",
 );
 const modalTotal = computed(() => {
   const addOnTotal = selected.value.addOns
@@ -418,6 +440,8 @@ function generateOrderCode() {
 
 async function beginStripeCheckout() {
   isSubmitting.value = true;
+  embeddedCheckoutLoading.value = true;
+  paymentError.value = "";
 
   try {
     const response = await fetch("/api/stripe/create-checkout-session", {
@@ -434,22 +458,58 @@ async function beginStripeCheckout() {
     });
 
     const data = await response.json();
-    if (!response.ok || !data.url) {
+    if (!response.ok || !data.clientSecret || !data.publishableKey) {
       throw new Error(
         data.error ||
           "Unable to start Stripe checkout. Check your Cloudflare Pages Stripe environment variables.",
       );
     }
 
-    window.location.href = data.url;
+    embeddedCheckoutOpen.value = true;
+    orderCode.value = data.orderCode ?? generateOrderCode();
+
+    await nextTick();
+
+    const stripe = await loadStripe(data.publishableKey);
+    if (!stripe) {
+      throw new Error("Unable to load Stripe checkout.");
+    }
+
+    embeddedCheckoutInstance?.destroy?.();
+    embeddedCheckoutInstance = await stripe.initEmbeddedCheckout({
+      clientSecret: data.clientSecret,
+      onComplete: handleEmbeddedCheckoutComplete,
+    });
+
+    embeddedCheckoutInstance.mount("#embedded-checkout");
   } catch (error) {
     paymentError.value =
       error instanceof Error
         ? error.message
         : "Unable to start Stripe checkout. Check your Cloudflare Pages Stripe environment variables.";
+    embeddedCheckoutOpen.value = true;
   } finally {
+    embeddedCheckoutLoading.value = false;
     isSubmitting.value = false;
   }
+}
+
+function handleEmbeddedCheckoutComplete() {
+  embeddedCheckoutInstance?.destroy?.();
+  embeddedCheckoutInstance = null;
+  embeddedCheckoutOpen.value = false;
+  orderPlaced.value = true;
+  cart.value = [];
+  cartOpen.value = false;
+  step.value = 1;
+  paymentError.value = "";
+}
+
+function closeEmbeddedCheckout() {
+  embeddedCheckoutInstance?.destroy?.();
+  embeddedCheckoutInstance = null;
+  embeddedCheckoutOpen.value = false;
+  embeddedCheckoutLoading.value = false;
 }
 
 onMounted(() => {
@@ -467,10 +527,12 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   window.removeEventListener("open-cart", handleOpenCart);
+  embeddedCheckoutInstance?.destroy?.();
+  embeddedCheckoutInstance = null;
 });
 
-watch([cartOpen, productOpen], ([cartState, productState]) => {
-  document.documentElement.style.overflow = cartState || productState ? "hidden" : "";
+watch([cartOpen, productOpen, embeddedCheckoutOpen], ([cartState, productState, embeddedState]) => {
+  document.documentElement.style.overflow = cartState || productState || embeddedState ? "hidden" : "";
 });
 
 watch(
@@ -562,6 +624,9 @@ watch(
 }
 .product-card:hover .product-image {
   transform: scale(1.04);
+}
+.hidden {
+  display: none;
 }
 .product-copy {
   padding: 20px;
@@ -662,9 +727,51 @@ textarea {
   background: rgba(5,6,10,.74);
   backdrop-filter: blur(14px);
 }
+.embedded-overlay {
+  z-index: 60;
+}
 .cart-overlay {
   place-items: stretch end;
   padding: 0;
+}
+.embedded-modal {
+  position: relative;
+  width: min(920px, 100%);
+  max-height: min(92vh, 960px);
+  overflow: auto;
+  padding: 28px;
+}
+.embedded-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.embedded-head h3 {
+  margin: 0;
+  font-size: 2rem;
+}
+.embedded-head p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.embedded-head strong {
+  white-space: nowrap;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.06);
+}
+.embedded-state {
+  min-height: 240px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: var(--muted);
+}
+#embedded-checkout {
+  min-height: 640px;
 }
 .modal {
   position: relative;
@@ -1042,6 +1149,19 @@ textarea {
   .sticky-cta {
     position: static;
     margin-top: 0;
+  }
+  .embedded-modal {
+    width: 100%;
+    padding: 22px 18px;
+  }
+  .embedded-head {
+    flex-direction: column;
+  }
+  .embedded-head h3 {
+    font-size: 1.5rem;
+  }
+  #embedded-checkout {
+    min-height: 520px;
   }
   .modal-action-row {
     display: block;

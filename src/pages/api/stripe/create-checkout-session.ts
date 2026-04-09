@@ -80,12 +80,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 
-  const session = await stripe.checkout.sessions.create({
+  const sessionParams = {
+    ui_mode: "embedded",
     mode: "payment",
     line_items: lineItems,
-    success_url: `${origin}${langPath}/checkout/success?order=${orderCode}&fulfillment=${payload.checkout.fulfillment}&payment=stripe`,
-    cancel_url: `${origin}${langPath}/checkout/cancel`,
+    return_url: `${origin}${langPath}/checkout/success?order=${orderCode}&fulfillment=${payload.checkout.fulfillment}&payment=stripe&session_id={CHECKOUT_SESSION_ID}`,
     customer_email: undefined,
+    redirect_on_completion: "never",
     billing_address_collection: payload.checkout.fulfillment === "delivery" ? "required" : "auto",
     metadata: {
       orderCode,
@@ -94,9 +95,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
       fulfillment: payload.checkout.fulfillment,
       address: payload.checkout.address || "",
     },
-  });
+  } as Record<string, unknown>;
 
-  return new Response(JSON.stringify({ url: session.url, orderCode }), {
+  const session = await stripe.checkout.sessions.create(sessionParams as never);
+
+  return new Response(JSON.stringify({
+    clientSecret: session.client_secret,
+    publishableKey: runtimeEnv?.STRIPE_PUBLISHABLE_KEY ?? import.meta.env.STRIPE_PUBLISHABLE_KEY,
+    orderCode,
+  }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
