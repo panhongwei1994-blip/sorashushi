@@ -154,7 +154,14 @@
                     :class="['choice-chip', { active: checkout.fulfillment === 'delivery' }]"
                     @click="checkout.fulfillment = 'delivery'"
                   >
-                    <span class="choice-icon" aria-hidden="true">🚚</span>
+                    <span class="choice-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 7h11v8H3z" />
+                        <path d="M14 10h3l4 3v2h-7z" />
+                        <circle cx="7.5" cy="18" r="1.5" />
+                        <circle cx="17.5" cy="18" r="1.5" />
+                      </svg>
+                    </span>
                     {{ copy.delivery }}
                   </button>
                   <button
@@ -162,7 +169,13 @@
                     :class="['choice-chip', { active: checkout.fulfillment === 'pickup' }]"
                     @click="checkout.fulfillment = 'pickup'"
                   >
-                    <span class="choice-icon" aria-hidden="true">🥡</span>
+                    <span class="choice-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 10h12l-1 9H7z" />
+                        <path d="M9 10V8a3 3 0 0 1 6 0v2" />
+                        <path d="M8 14h8" />
+                      </svg>
+                    </span>
                     {{ copy.pickup }}
                   </button>
                 </div>
@@ -176,7 +189,13 @@
                     :class="['choice-chip', { active: checkout.payment === 'stripe' }]"
                     @click="checkout.payment = 'stripe'"
                   >
-                    <span class="choice-icon" aria-hidden="true">💳</span>
+                    <span class="choice-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="6" width="18" height="12" rx="2" />
+                        <path d="M3 10h18" />
+                        <path d="M7 15h3" />
+                      </svg>
+                    </span>
                     {{ copy.stripe }}
                   </button>
                   <button
@@ -184,7 +203,13 @@
                     :class="['choice-chip', { active: checkout.payment === 'cash' }]"
                     @click="checkout.payment = 'cash'"
                   >
-                    <span class="choice-icon" aria-hidden="true">💵</span>
+                    <span class="choice-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="7" width="18" height="10" rx="2" />
+                        <circle cx="12" cy="12" r="2.5" />
+                        <path d="M7 10h.01M17 14h.01" />
+                      </svg>
+                    </span>
                     {{ copy.cash }}
                   </button>
                 </div>
@@ -1087,8 +1112,16 @@ textarea {
   text-transform: uppercase;
 }
 .choice-icon {
-  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
   line-height: 1;
+}
+.choice-icon svg {
+  width: 18px;
+  height: 18px;
 }
 .choice-chip.active {
   background: rgba(212,165,74,.14);
