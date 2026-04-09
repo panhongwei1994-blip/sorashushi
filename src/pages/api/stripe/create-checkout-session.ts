@@ -24,9 +24,11 @@ type CheckoutPayload = {
   deliveryFee: number;
 };
 
-const stripeKey = import.meta.env.STRIPE_SECRET_KEY;
+export const POST: APIRoute = async ({ request, locals }) => {
+  const runtimeEnv = (locals as { runtime?: { env?: Record<string, string> } }).runtime?.env;
+  const stripeKey = runtimeEnv?.STRIPE_SECRET_KEY ?? import.meta.env.STRIPE_SECRET_KEY;
+  const siteUrl = runtimeEnv?.PUBLIC_SITE_URL ?? import.meta.env.PUBLIC_SITE_URL;
 
-export const POST: APIRoute = async ({ request }) => {
   if (!stripeKey) {
     return new Response(JSON.stringify({
       error:
@@ -46,7 +48,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const stripe = new Stripe(stripeKey);
-  const origin = import.meta.env.PUBLIC_SITE_URL || new URL(request.url).origin;
+  const origin = siteUrl || new URL(request.url).origin;
   const langPath = payload.lang && payload.lang !== "en" ? `/${payload.lang}` : "";
   const orderCode = `${payload.checkout.fulfillment === "pickup" ? "PK" : "DL"}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
