@@ -476,7 +476,7 @@ async function beginStripeCheckout() {
     }
 
     embeddedCheckoutInstance?.destroy?.();
-    embeddedCheckoutInstance = await stripe.initEmbeddedCheckout({
+    embeddedCheckoutInstance = await stripe.createEmbeddedCheckoutPage({
       clientSecret: data.clientSecret,
       onComplete: handleEmbeddedCheckoutComplete,
     });
