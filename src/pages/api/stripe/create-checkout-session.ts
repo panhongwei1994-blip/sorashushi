@@ -1,6 +1,8 @@
 import type { APIRoute } from "astro";
 import Stripe from "stripe";
 
+export const prerender = false;
+
 type CheckoutPayload = {
   lang?: string;
   cart: Array<{
