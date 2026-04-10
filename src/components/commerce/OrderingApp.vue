@@ -661,6 +661,16 @@ watch(
 }
 .product-card {
   overflow: hidden;
+  position: relative;
+}
+.product-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(125deg, transparent 0%, rgba(255,255,255,.04) 52%, transparent 100%);
+  opacity: 0;
+  transition: opacity .22s ease;
+  pointer-events: none;
 }
 .image-button {
   width: 100%;
@@ -677,6 +687,9 @@ watch(
 }
 .product-card:hover .product-image {
   transform: scale(1.04);
+}
+.product-card:hover::after {
+  opacity: 1;
 }
 .hidden {
   display: none;
@@ -722,8 +735,10 @@ watch(
 .product-header strong {
   white-space: nowrap;
   padding: 10px 14px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.06);
+  border-radius: 16px;
+  border: 1px solid rgba(212,165,74,.18);
+  background: rgba(212,165,74,.08);
+  color: rgba(244,213,154,.95);
 }
 .product-actions,
 .checkout-actions {
@@ -1129,20 +1144,29 @@ textarea {
 .totals {
   display: grid;
   gap: 8px;
-  padding: 16px 0 0;
-  border-top: 1px solid rgba(255,255,255,.08);
+  padding: 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,.08);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)),
+    rgba(255,255,255,.025);
 }
 .totals > div:last-child {
   color: var(--text);
   font-weight: 700;
+  padding-top: 10px;
+  margin-top: 2px;
+  border-top: 1px solid rgba(255,255,255,.08);
 }
 .checkout-box {
   display: grid;
   gap: 14px;
-  padding: 16px;
+  padding: 18px;
   margin-top: 12px;
   border-radius: 20px;
-  background: rgba(255,255,255,.04);
+  background:
+    radial-gradient(circle at top right, rgba(212,165,74,.08), transparent 28%),
+    rgba(255,255,255,.04);
   border: 1px solid rgba(255,255,255,.08);
 }
 .form-grid {
@@ -1232,6 +1256,9 @@ textarea {
   background: linear-gradient(135deg, var(--gold), var(--gold-soft));
   color: #160f08;
   box-shadow: 0 18px 40px rgba(212,165,74,.34);
+}
+.cart-item {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
 }
 
 @media (max-width: 1080px) {

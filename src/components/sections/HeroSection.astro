@@ -6,6 +6,7 @@ const content = getContent(lang);
 ---
 
 <section class="hero-shell">
+  <div class="hero-grain" aria-hidden="true"></div>
   <img
     src="/sushi/hero.png"
     alt={content.heroTitle}
@@ -17,15 +18,18 @@ const content = getContent(lang);
     linear-gradient(180deg, rgba(7,8,12,.1), rgba(7,8,12,.72));"></div>
 
   <div class="container hero-grid" style="position:relative;z-index:1;display:grid;grid-template-columns:1.2fr .8fr;gap:32px;align-items:end;min-height:100svh;padding:120px 0 56px;">
-    <div>
-      <p class="eyebrow">{content.brand}</p>
+    <div class="hero-copy">
+      <div class="hero-badge-row">
+        <p class="eyebrow">{content.brand}</p>
+        <span class="hero-badge">Tokyo craft. City speed.</span>
+      </div>
       <h1 class="section-title" style="font-size:clamp(3.5rem,8vw,6.5rem);max-width:12ch;">
         {content.heroTitle}
       </h1>
       <p class="section-copy" style="max-width:38rem;margin:24px 0 0;font-size:1.2rem;">
         {content.heroBody}
       </p>
-      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:34px;">
+      <div class="hero-cta-row" style="display:flex;gap:14px;flex-wrap:wrap;margin-top:34px;">
         <a class="pill-button" href="#order-menu">{content.orderNow}</a>
         <button
           class="ghost-button install-button"
@@ -42,7 +46,7 @@ const content = getContent(lang);
     <div class="card hero-proof" style="padding:22px;display:grid;gap:14px;">
       {content.trust.map((item, index) => (
         <div class="proof-card" style="padding:16px 18px;border-radius:22px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);">
-          <p class="eyebrow" style="margin-bottom:8px;">{item}</p>
+          <p class="eyebrow proof-eyebrow" style="margin-bottom:8px;">{item}</p>
           <p style="margin:0;color:var(--muted);line-height:1.7;">{content.trustBody[index]}</p>
         </div>
       ))}
@@ -56,6 +60,18 @@ const content = getContent(lang);
     min-height: 100svh;
     overflow: hidden;
   }
+  .hero-grain {
+    position: absolute;
+    inset: 0;
+    opacity: .12;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(255,255,255,.24) 0 1px, transparent 1px),
+      radial-gradient(circle at 80% 30%, rgba(255,255,255,.16) 0 1px, transparent 1px),
+      radial-gradient(circle at 55% 70%, rgba(255,255,255,.18) 0 1px, transparent 1px);
+    background-size: 18px 18px, 24px 24px, 22px 22px;
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+  }
   .hero-shell:after {
     content: "";
     position: absolute;
@@ -66,13 +82,57 @@ const content = getContent(lang);
     background: radial-gradient(circle, rgba(212,165,74,.18), transparent 62%);
     filter: blur(30px);
   }
+  .hero-copy {
+    max-width: 46rem;
+  }
+  .hero-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(212,165,74,.22);
+    background: rgba(212,165,74,.08);
+    color: rgba(244,213,154,.9);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+  }
+  .hero-cta-row :global(.pill-button) {
+    min-width: 176px;
+  }
+  .hero-cta-row :global(.ghost-button) {
+    min-width: 176px;
+  }
   .hero-proof {
     background:
+      radial-gradient(circle at top right, rgba(212,165,74,.12), transparent 28%),
       linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)),
       rgba(10,12,18,.58);
   }
   .proof-card {
     backdrop-filter: blur(8px);
+    position: relative;
+    overflow: hidden;
+  }
+  .proof-card::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: linear-gradient(180deg, rgba(244,213,154,.9), rgba(212,165,74,.1));
+  }
+  .proof-eyebrow {
+    padding-left: 10px;
   }
   @media (max-width: 900px) {
     .hero-grid {
@@ -80,6 +140,19 @@ const content = getContent(lang);
       align-items: center !important;
       padding-top: 120px !important;
       padding-bottom: 40px !important;
+    }
+  }
+  @media (max-width: 640px) {
+    .hero-badge {
+      width: 100%;
+      justify-content: center;
+    }
+    .hero-cta-row {
+      width: 100%;
+    }
+    .hero-cta-row :global(.pill-button),
+    .hero-cta-row :global(.ghost-button) {
+      width: 100%;
     }
   }
 </style>

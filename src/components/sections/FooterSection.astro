@@ -13,19 +13,12 @@ const content = getContent(lang);
         <p class="eyebrow">{content.brand}</p>
       </div>
       <h2>Sculpted for premium delivery.</h2>
-      <p>{content.footerStory}</p>
-      <div class="footer-cta-row">
-        <a class="pill-button" href="#order-menu">{content.orderNow}</a>
-        <button
-          class="ghost-button install-button"
-          type="button"
-          data-a2hs-trigger
-          data-install-ios-hint={content.installHintIos}
-          data-install-generic-hint={content.installHintGeneric}
-        >
-          {content.addToHomeScreen}
-        </button>
+      <div class="footer-meta">
+        <span>OMAKASE STANDARD</span>
+        <span>30-45 MINUTE DISPATCH</span>
+        <span>FRESH DAILY</span>
       </div>
+      <p>{content.footerStory}</p>
     </div>
 
     <div class="footer-grid">
@@ -98,18 +91,33 @@ const content = getContent(lang);
     line-height: .95;
     letter-spacing: -.05em;
   }
+  .footer-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+  }
+  .footer-meta span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.08);
+    background: rgba(255,255,255,.03);
+    color: rgba(246,239,230,.7);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
   .footer-brand p:last-of-type {
     max-width: 44rem;
     margin: 16px 0 0;
     color: var(--muted);
     line-height: 1.8;
     font-size: 1.04rem;
-  }
-  .footer-cta-row {
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-    margin-top: 26px;
   }
   .footer-grid {
     display: grid;
@@ -121,6 +129,7 @@ const content = getContent(lang);
     border-radius: 24px;
     background: rgba(255,255,255,.035);
     border: 1px solid rgba(255,255,255,.08);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
   }
   .footer-grid p {
     margin: 0 0 10px;
@@ -158,6 +167,10 @@ const content = getContent(lang);
   @media (max-width: 560px) {
     .footer-top {
       padding: 24px;
+    }
+    .footer-meta span {
+      width: 100%;
+      justify-content: center;
     }
     .footer-grid {
       grid-template-columns: 1fr;
