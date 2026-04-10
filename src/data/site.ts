@@ -81,15 +81,15 @@ export const siteContent = {
     paymentMethod: "Payment method",
     stripe: "Stripe",
     cash: "Cash on Delivery",
-    reviewTitle: "Premium delivery trusted by repeat customers",
+    reviewTitle: "Loved by regulars across the city",
     reviewBody:
-      "High ratings, polished presentation and a low-friction checkout are what turn visits into orders.",
-    futureTitle: "Ready for business growth",
+      "Guests come back for the quality, the consistency and the ease of ordering their favorites again.",
+    futureTitle: "Why guests order again",
     future: [
-      "Promo code hook ready",
-      "Delivery zones ready",
-      "Order tracking ready",
-      "Admin panel ready",
+      "Made fresh throughout the day",
+      "Fast delivery across the city",
+      "Pickup or delivery in a few taps",
+      "Clear pricing and simple checkout",
     ],
     locationAddress: "18 Omakase Street, San Francisco, CA 94105",
     phoneLabel: "+1 (415) 555-0142",
@@ -97,7 +97,7 @@ export const siteContent = {
     hoursWeek: "Mon-Thu, Sun · 11:30-22:00",
     hoursWeekend: "Fri-Sat · 11:30-23:00",
     footerStory:
-      "Sora Sushi pairs refined Japanese minimalism with a fast, low-friction delivery experience built for real customers.",
+      "Sora Sushi brings together refined Japanese flavors, careful daily prep and a polished delivery experience designed for repeat orders.",
     footerLinks: ["Signature Rolls", "Omakase Boxes", "Delivery", "Pickup"],
   },
   de: {
@@ -184,7 +184,7 @@ export const siteContent = {
     hoursWeek: "Mo-Do, So · 11:30-22:00",
     hoursWeekend: "Fr-Sa · 11:30-23:00",
     footerStory:
-      "Sora Sushi verbindet japanischen Minimalismus mit einem schnellen, hochwertigen Liefererlebnis.",
+      "Sora Sushi verbindet japanische Raffinesse, tägliche Frische und ein hochwertiges Liefererlebnis.",
     footerLinks: ["Signature Rolls", "Omakase Boxen", "Lieferung", "Abholung"],
   },
   es: {
@@ -260,10 +260,10 @@ export const siteContent = {
       "Buenas reseñas, presentación cuidada y checkout rápido para maximizar pedidos.",
     futureTitle: "Preparado para crecer",
     future: [
-      "Gancho para promo codes",
-      "Zonas de reparto listas",
-      "Tracking de pedidos listo",
-      "Panel admin listo",
+      "Preparado fresco durante todo el día",
+      "Entrega rápida en la ciudad",
+      "Recogida o delivery en pocos pasos",
+      "Precios claros y checkout simple",
     ],
     locationAddress: "18 Omakase Street, San Francisco, CA 94105",
     phoneLabel: "+1 (415) 555-0142",
@@ -271,7 +271,7 @@ export const siteContent = {
     hoursWeek: "Lun-Jue, Dom · 11:30-22:00",
     hoursWeekend: "Vie-Sáb · 11:30-23:00",
     footerStory:
-      "Sora Sushi combina minimalismo japonés con una experiencia de delivery premium y rápida.",
+      "Sora Sushi combina sabores japoneses refinados, preparación diaria y una experiencia de delivery pensada para repetir.",
     footerLinks: ["Rolls Signature", "Boxes Omakase", "Entrega", "Recogida"],
   },
   fr: {
@@ -347,10 +347,10 @@ export const siteContent = {
       "Des avis solides, une présentation élégante et un checkout rapide pour convertir davantage.",
     futureTitle: "Prêt pour la croissance",
     future: [
-      "Hook promo code prêt",
-      "Zones de livraison prêtes",
-      "Suivi de commande prêt",
-      "Admin panel prêt",
+      "Préparé frais tout au long de la journée",
+      "Livraison rapide en ville",
+      "Retrait ou livraison en quelques gestes",
+      "Prix clairs et checkout simple",
     ],
     locationAddress: "18 Omakase Street, San Francisco, CA 94105",
     phoneLabel: "+1 (415) 555-0142",
@@ -358,7 +358,7 @@ export const siteContent = {
     hoursWeek: "Lun-Jeu, Dim · 11:30-22:00",
     hoursWeekend: "Ven-Sam · 11:30-23:00",
     footerStory:
-      "Sora Sushi mêle minimalisme japonais et expérience de livraison premium pensée pour convertir.",
+      "Sora Sushi réunit saveurs japonaises raffinées, préparation quotidienne et livraison premium pensée pour fidéliser.",
     footerLinks: ["Rolls Signature", "Boxes Omakase", "Livraison", "Retrait"],
   },
   nl: {
@@ -434,10 +434,10 @@ export const siteContent = {
       "Sterke reviews, verzorgde presentatie en snelle checkout zorgen voor meer bestellingen.",
     futureTitle: "Klaar om op te schalen",
     future: [
-      "Promo code hook klaar",
-      "Bezorgzones klaar",
-      "Order tracking klaar",
-      "Admin panel klaar",
+      "Dagelijks vers bereid",
+      "Snelle bezorging in de stad",
+      "Afhalen of bezorgen in een paar tikken",
+      "Duidelijke prijzen en eenvoudige checkout",
     ],
     locationAddress: "18 Omakase Street, San Francisco, CA 94105",
     phoneLabel: "+1 (415) 555-0142",
@@ -445,7 +445,7 @@ export const siteContent = {
     hoursWeek: "Ma-Do, Zo · 11:30-22:00",
     hoursWeekend: "Vr-Za · 11:30-23:00",
     footerStory:
-      "Sora Sushi combineert Japans minimalisme met een premium bezorgervaring die echt verkoopt.",
+      "Sora Sushi combineert verfijnde Japanse smaken, dagelijkse bereiding en een premium bezorgervaring waar gasten voor terugkomen.",
     footerLinks: ["Signature Rolls", "Omakase Boxen", "Bezorging", "Afhalen"],
   },
 } as const;

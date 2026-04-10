@@ -30,7 +30,7 @@ const canonical = lang === "en" ? "/" : `/${lang}`;
     <meta name="theme-color" content="#07080c" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Sora Shushi" />
+    <meta name="apple-mobile-web-app-title" content="Sora Sushi" />
     <link rel="canonical" href={canonical} />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
@@ -71,8 +71,8 @@ const canonical = lang === "en" ? "/" : `/${lang}`;
       <div class="install-backdrop" data-install-close></div>
       <div class="install-dialog card" role="dialog" aria-modal="true" aria-labelledby="install-title">
         <button class="install-close" type="button" data-install-close aria-label="Close">×</button>
-        <img src="/sushi/logo.webp" alt="Sora Shushi" class="install-logo" />
-        <p class="eyebrow">Sora Shushi</p>
+        <img src="/sushi/logo.webp" alt="Sora Sushi" class="install-logo" />
+        <p class="eyebrow">Sora Sushi</p>
         <h3 id="install-title">Add to your home screen</h3>
         <p class="install-copy" id="install-copy"></p>
         <div class="install-steps" id="install-steps"></div>
@@ -112,18 +112,18 @@ const canonical = lang === "en" ? "/" : `/${lang}`;
 
         const ios = variant === "ios";
         copyNode.textContent = ios
-          ? "Install Sora Shushi to open it like an app from your iPhone home screen."
-          : "Install Sora Shushi for faster access from your device home screen.";
+          ? "Install Sora Sushi to open it like an app from your iPhone home screen."
+          : "Install Sora Sushi for faster access from your device home screen.";
         stepsNode.innerHTML = ios
           ? `
             <div class="install-step"><span class="install-step-number">1</span><p>Tap the Share button in Safari.</p></div>
             <div class="install-step"><span class="install-step-number">2</span><p>Select Add to Home Screen.</p></div>
-            <div class="install-step"><span class="install-step-number">3</span><p>Save it as Sora Shushi.</p></div>
+            <div class="install-step"><span class="install-step-number">3</span><p>Save it as Sora Sushi.</p></div>
           `
           : `
             <div class="install-step"><span class="install-step-number">1</span><p>Open your browser menu.</p></div>
             <div class="install-step"><span class="install-step-number">2</span><p>Choose Install App or Add to Home Screen.</p></div>
-            <div class="install-step"><span class="install-step-number">3</span><p>Save it as Sora Shushi.</p></div>
+            <div class="install-step"><span class="install-step-number">3</span><p>Save it as Sora Sushi.</p></div>
           `;
         modal.hidden = false;
         document.documentElement.style.overflow = "hidden";
